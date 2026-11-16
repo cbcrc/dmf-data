@@ -30,6 +30,8 @@ Each study is a folder with three pages:
 - **`how-to-reproduce.md`, the steps.** Numbered steps, with every command, to run the measurement again on your
   own hardware with public tools, and the figures to compare with.
 
+A study that was presented in a talk also has a `slides/` folder with the deck, as it was shown.
+
 The raw measurement logs are too large to publish; `results.md` holds the per-run statistics computed from them.
 The results come from our lab hardware, described in each `results.md`; check how close yours is before reusing a
 number.
