@@ -6,7 +6,7 @@ SPDX-License-Identifier: CC-BY-4.0
 # Cross-NUMA cost of MXL grain transit: detailed results
 
 The executive summary is in [`README.md`](README.md). This page is the full report: every run, every
-number, and how to [reproduce](#reproduce) it. The two lab hosts are called **host A** and **host B**.
+number. The steps to run it again are in [`how-to-reproduce.md`](how-to-reproduce.md). The two lab hosts are called **host A** and **host B**.
 
 
 This report asks what it costs when an MXL flow's writer and its readers run on different sockets of a 2-socket
@@ -17,8 +17,7 @@ It has four parts:
 - a [background](#background) section that explains the terms the rest of the report uses;
 - a [summary](#summary) of the findings;
 - the [test procedure](#test-procedure);
-- the [detailed report](#detailed-report), in the order the tests were run, with every number;
-- how to [reproduce](#reproduce) it.
+- the [detailed report](#detailed-report), in the order the tests were run, with every number.
 
 ## Background
 
@@ -237,11 +236,11 @@ head-3, 2160p, and 2160p head-3) were derived from those and are in `scenarios/`
 
 ### Placement
 
-- **Compose.** `docker-compose.numa-writer-reader.yml`, plus the override `three-readers.yml` ([Reproduce](#reproduce)) on
-  each host from §2 on. The override sets every cpuset from the environment and adds `abi-reader-local`, a
-  reader-only container on the writer's node (port 9609).
-- **Memory nodes.** After `up`, `docker update --cpuset-mems` sets each container's memory node.
-  `Cpus_allowed_list` and `Mems_allowed_list` were checked in `/proc/<pid>/status` before every run.
+- **Containers.** Each role is its own mxl-api-bench container, and all of them share one MXL domain. §1 has
+  two: the writer (whose own reader lane is the local reader) and the cross reader. From §2 on there is a third,
+  a separate local reader on the writer's node.
+- **Memory nodes.** Each container's memory is restricted to the node it runs on. The CPU and memory placement
+  of every container was checked before every run.
 - **Grain pages.** The writer creates the flow, so the grain pages are first touched on node 0. `numa_maps` in
   every container showed the grain pages as `N0=` only.
 - **Layouts.** Each container is pinned to whole physical cores. CPU n and its hyperthread sibling n+24 are one
@@ -269,37 +268,24 @@ it runs the writer lanes only.
 
 ### Host settings
 
-- **CPU governor:** `performance` on all 48 CPUs from §3 on, set by the user with `sudo cpupower frequency-set -g
-  performance`. §1-2 ran under the default `schedutil`, which turned out to be the main source of noise.
+- **CPU governor:** `performance` on all 48 CPUs from §3 on. §1-2 ran under the default `schedutil`, which
+  turned out to be the main source of noise.
 - **Isolation:** no `isolcpus`. Nothing else was running on host B.
 
-### Run harness (§5-10)
+### Run protocol (§5-10)
 
-Each pass has two scripts on the host:
-- `<pass>-run.sh`, the driver, runs as an unprivileged user;
-- `<pass>-record.sh`, the recorder, runs with sudo in the user's own terminal.
+- **Run length.** Each run is 90 s: 2 700 grains written, 2 550 read by each reader lane.
+- **Only the containers in the run are running.** In the single-reader runs (§6-7), the other reader container is
+  stopped. The MXL domain is emptied between runs.
+- **Counting window.** The counters run for 30 s (20 s in §5), starting 30 s into the run, once the flow is in
+  steady state.
+- **N readers or F flows (§8-10).** Lane B, or lane A, is cloned onto more lanes in the same container. Each
+  writer lane writes its own flow: the scenario's flow id with the last two digits replaced by 10+i.
+- **Memory stress (§9-10).** `stress-ng` runs on its own physical cores on node 0, with its memory on node 0. It
+  starts 15 s before the flows and stops after them.
 
-They hand off through files:
-1. The recorder creates `ready`. From §7 on, it first does a 1 s test count to catch rejected events.
-2. The driver brings the containers up.
-3. For each run, the driver creates `go` 30 s in. The recorder counts for 30 s (20 s in §5) and creates
-   `recorded`.
-4. After the last run, the driver creates `finished` and the recorder exits.
-
-Each run:
-1. The driver stops every container, clears the domain, and starts only the containers in the run. The other
-   reader stays stopped.
-2. It fetches the scenario from the server and trims it with jq to 90 s (`a7.times = 2699`, `b5.times = 2549`).
-3. It splits it into a writer body (lane A) and a reader body (lane B), then does `POST /scenario` and `POST /run`.
-4. It waits until every lane's `next` reaches the end of its steps. `/state.running` stays true after the lanes
-   finish, so it can't be used.
-
-Variants of this:
-- **N readers or F flows (§8-10):** lane B, or lane A, is cloned onto more lanes. Each clone gets its own handle
-  names, because handles are global to a container. Each writer lane gets its own flow id: the scenario's id with
-  the last two digits replaced by 10+i. The bodies were checked against a scratch server before the first run.
-- **stress-ng (§9-10):** `polinux/stress-ng` runs on its own physical cores with `--cpuset-mems 0`. It is
-  started 15 s before the flows and removed after.
+The exact steps, including how the runs were driven and the counters recorded, are in
+[`how-to-reproduce.md`](how-to-reproduce.md).
 
 ### Counters
 
@@ -395,9 +381,9 @@ node 1, sharing a single MXL domain on tmpfs. Each read flavour ran once for 5 m
 | Host isolation | none: no `isolcpus`, governor `schedutil`, idle host (load 0.00) |
 | Flow | 1080p29.97 v210, 5 529 600 B grains, 9 000 grains written (5 min) |
 
-**Scenarios.** Each run uses scenario 10 (stamp), 08 (lines) or 11 (copy) from `scenarios/`. Both
-instances load it with jq overrides: `a7.times = 8999`, `b5.times = 8849`. Lane B stops 150 grains before the
-writer, so its last blocking reads don't wait out their 2 s timeouts.
+**Scenarios.** Each run uses scenario 10 (stamp), 08 (lines) or 11 (copy) from `scenarios/`, shortened to
+9 000 grains written. Lane B stops 150 grains before the writer, so its last blocking reads don't wait out their
+2 s timeouts.
 - **Writer instance** runs the writer lane A and the reader lane B. Its lane B is the **local** reader (node 0).
 - **Reader instance** runs the same body with lane A removed. Its lane B is the **cross-node** reader (node 1).
 
@@ -477,9 +463,8 @@ This tests two possible explanations for the first run's result:
 - **Same process.** The local reader shares the writer's process and its cores.
 - **Socket asymmetry.** Node 1 is simply the faster socket.
 
-**Override.** The PR compose was used unchanged, plus the override `three-readers.yml` ([Reproduce](#reproduce)) on the lab
-host. The override sets every cpuset from the environment and adds **abi-reader-local**: a separate container on
-the writer's node (port 9609) that runs the same reader-only body.
+**Third container.** A separate local reader, **abi-reader-local**, is added on the writer's node. It runs the
+same reader-only body as the cross reader.
 
 **Layouts.** Each container gets its own 6 physical cores, including their hyperthread siblings (n and n+24).
 No two containers share a core.
@@ -792,8 +777,7 @@ This removes the confound found above, where the readers fed each other.
   other reader container stays stopped.
 
 Same layout A cpusets and `performance` governor. Each run is 90 s, and the counters ran for 30 s, starting 30 s
-in. Each reader made 2 550 reads with 0 failed and every stamp matching. The driver and recorder are
-`single-run.sh` and `single-record.sh` (sudo).
+in. Each reader made 2 550 reads with 0 failed and every stamp matching.
 
 The counters now include `any_response` (the total) and `l3_hit` (all L3 hits), so the sources add up. The
 grain stream is 345 600 lines x 899 grains, about **311 M lines per 30 s**.
@@ -876,8 +860,7 @@ There were two passes:
 - **Pass 1:** the four single-reader runs.
 - **Pass 2:** the two head+1 runs again, with the events pass 1 missed.
 
-Drivers are `dir-run.sh` and `dir2-run.sh`, and the sudo recorders are `dir-record.sh` and `dir2-record.sh`. The
-timings repeat §6 to within 0.05 ms. The exception is cross head-3 touch, at 2.04 ms vs 1.90 ms.
+The timings repeat §6 to within 0.05 ms. The exception is cross head-3 touch, at 2.04 ms vs 1.90 ms.
 
 #### Timings (ms, p50 / p99)
 
@@ -959,8 +942,7 @@ scenario 15) and N readers in one reader container, all local (node 0) or all cr
 - Counters are per socket: UPI flits sent (`unc_upi_txl_flits.*`), DRAM CAS reads and writes (`unc_m_cas_count.*`),
   the writer's RFO-prefetch latency, snoops from the other socket, and directory state-A lookups.
 
-Every lane made 2 550 reads, with 0 failed and every stamp matching. The driver is `multi-run.sh` and the sudo
-recorder is `multi-record.sh`.
+Every lane made 2 550 reads, with 0 failed and every stamp matching.
 
 #### Timings (ms, p50; reader touch is the mean of the lanes' p50)
 
@@ -1043,8 +1025,7 @@ CPU n is n+24). The guide's layout puts stress-ng on the siblings of the writer'
 | Cross reader | 1-11 odd + 25-35 odd (unchanged) |
 
 The writer has 8 CPUs here instead of 12, so compare within this section. Every lane made 2 550 reads, with 0
-failed and every stamp matching. The driver is `flows-run.sh` and the sudo recorder is `flows-record.sh`, with the
-same counters as §8.
+failed and every stamp matching. The counters are the same as in §8.
 
 #### Timings (ms, p50 mean of lanes; p99 of the worst lane)
 
@@ -1115,8 +1096,7 @@ This is the same layout and flows as §9, at F = 1 and F = 4, local and cross. s
   stress.
 - The baselines are §9's no-stress runs, same layout, about an hour earlier.
 
-Every lane made 2 550 reads, with 0 failed and every stamp matching. The driver is `stress-run.sh` and the sudo
-recorder is `stress-record.sh`, with the same counters.
+Every lane made 2 550 reads, with 0 failed and every stamp matching. The counters are the same as in §9.
 
 #### Timings (ms, p50 mean of lanes; p99 of the worst lane)
 
@@ -1572,76 +1552,3 @@ A/13-transit-local-copy-lag3/writer.ndjson  lane B  mxlFlowReaderGetGrain
 ```
 
 </details>
-
-## Reproduce
-
-The raw NDJSON logs, `/state` snapshots, `numa_maps` captures and counter files are kept on the lab hosts and
-are not published. Everything needed to produce new ones is public.
-
-**Tool.** [mxl-api-bench](https://github.com/cbcrc/mxl-api-bench). The runs used the image
-`ghcr.io/cbcrc/abi-tester:latest` = `hands-on-1cdb007` (the tool's earlier name); any later
-`ghcr.io/cbcrc/mxl-api-bench` image runs the same scenarios. The log variable was then `ABI_TESTER_LOG_FILE`;
-it is now `MXL_API_BENCH_LOG_FILE`.
-
-**Scenarios**, all in the tool's `scenarios/` directory:
-
-| Scenario | Used in | What it does |
-|---|---|---|
-| `10-transit-local-stamp`, `08-transit-local-lines`, `11-transit-local-copy` | §1-3 | 1080p29.97 v210 writer (lane A) plus a reader at head+1 (lane B) that reads only the stamp, every line, or copies the grain |
-| `13-transit-local-copy-lag3` | §4 | 11 with the reader at head-3 |
-| `14-transit-local-lines-2160p`, `15-transit-local-copy-2160p` | §4-6 | 08 and 11 at 2160p (22 MB grains) |
-| `16-transit-local-lines-2160p-lag3`, **`17-transit-local-copy-2160p-lag3`** | §4-10 | 2160p at head-3, so the grain is read from DRAM. **17 is the one that isolates the cross-NUMA cost** |
-
-12 to 17 are generated from 08 and 11 by `scenarios/make-lag.sh` and `scenarios/make-2160p.sh`.
-
-**Placement.** [`docker-compose.numa-writer-reader.yml`](https://github.com/cbcrc/mxl-api-bench/blob/main/docker-compose.numa-writer-reader.yml)
-from the tool's repository, plus this override (`three-readers.yml`), which takes every cpuset from the
-environment and adds a third, reader-only container on the writer's node. Set `WRITER_CPUS`, `LOCAL_CPUS` and
-`READER_CPUS` to the CPU lists of the layout ([Placement](#placement)), then pin each container's memory with
-`docker update --cpuset-mems <node>`.
-
-```yaml
-# Override for docker-compose.numa-writer-reader.yml: cpusets from the environment,
-# plus a third, separate reader on the writer's node (port 9609).
-services:
-  abi-writer:
-    cpuset: "${WRITER_CPUS}"
-  abi-reader:
-    cpuset: "${READER_CPUS}"
-  abi-reader-local:
-    platform: linux/amd64
-    image: ghcr.io/cbcrc/mxl-api-bench:latest
-    pull_policy: always
-    container_name: abi-reader-local
-    hostname: abi-reader-local
-    cpuset: "${LOCAL_CPUS}"
-    ports:
-      - "9609:9600"
-    volumes:
-      - type: bind
-        source: ${MXL_DOMAIN_DEVICE:-/dev/shm/domain_1}
-        target: /mxl-domain
-      - type: bind
-        source: ./scenarios
-        target: /app/scenarios
-      - type: bind
-        source: ./logs/reader-local
-        target: /app/logs
-    environment:
-      - MXL_DOMAIN_ROOT=/mxl-domain
-      - SCENARIO_DIR=/app/scenarios
-      - MXL_API_BENCH_LOG_FILE=/app/logs/events.ndjson
-```
-
-**Each run** (the driver, as described in [Run harness](#run-harness-5-10)):
-1. Set the governor: `sudo cpupower frequency-set -g performance`.
-2. Fetch the scenario from the writer instance (`GET /scenarios/<name>`) and trim it with jq, for example
-   `a7.times = 2699`, `b5.times = 2549` for 90 s.
-3. Split it into a writer body (lane A) and a reader body (lane B only), `POST /scenario` each body to its
-   instance, then `POST /run` to each.
-4. Wait until every lane's `next` reaches the end of its steps, then copy each instance's
-   `logs/<instance>/events.ndjson`.
-
-**Analysis.** `mxl-transit-stats.py --lane B <writer.ndjson> <reader-local.ndjson> <reader.ndjson>` from the
-tool's repository gives the tables in Appendix A. Counters are taken with `perf stat` as described in
-[Counters](#counters).

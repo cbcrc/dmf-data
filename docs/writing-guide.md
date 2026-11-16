@@ -12,13 +12,15 @@ will not read 1,600 lines of counter tables. They will read a page and a half th
 them what we asked, what we found, and what to do about it, as long as they trust that
 the tables exist behind it.
 
-So every study here has two files with two different jobs:
+So every study here has three files with three different jobs:
 
 - **`README.md`, the executive summary.** Read by anyone deciding how to deploy
   something: architects, operations, managers, other teams. It tells the story and ends
   with rules of thumb.
-- **`results.md`, the detailed results.** Read by whoever wants to check, challenge or
-  reproduce the work. It holds every table, every setting and the recipe to run it again.
+- **`results.md`, the detailed results.** Read by whoever wants to check or challenge the
+  work. It holds every table, every setting and every caveat.
+- **`how-to-reproduce.md`, the steps.** Read by whoever wants to run it again, on their own
+  hardware. Numbered steps, each with the commands to type.
 
 When one file tries to do both, the summary drowns in numbers and the decision it was
 meant to inform goes through unread. This page is about the first kind, and about the
@@ -53,8 +55,8 @@ else can too.
    scenario name), put it in a code block or a table.
 7. **End with what to do.** Rules of thumb, numbered, each one sentence plus its reason.
    Then the questions still open.
-8. **Link down for the detail.** "The tables, settings and the recipe to reproduce are in
-   [`results.md`](results.md)."
+8. **Link down for the detail.** "The tables, settings and caveats are in
+   `results.md`."
 
 ## The detailed results: complete, but still readable
 
@@ -67,8 +69,8 @@ else can too.
 - Raw-data tables are the statistics the conclusions were drawn from, per run: counts,
   failures, min, p50, p90, p99, max. Say which runs were excluded and why.
 - The **caveats** list everything that was not controlled.
-- **Reproduce** gives the tool repository and commit, scenario files, compose files and
-  overrides, and the analysis command, so someone else can run it again on other hardware.
+- **No commands.** How to run it again goes in `how-to-reproduce.md`. The method section says
+  *what* each run did; the steps page says *how* to do it.
 
 ## An example
 
@@ -94,7 +96,7 @@ table, the counter names and the exact figures stay in `results.md`.
 ## What enforces this
 
 - **CI** fails a `README.md` or a file in `docs/` that cites a source line
-  (`file.cpp:123`), a study without its two files or without an entry in the root README,
+  (`file.cpp:123`), a study without its three files or without an entry in the root README,
   a private IP address, and any raw log. Run `.github/scripts/docs-checks.sh` locally.
 - **Claude Code** loads a short reminder of this page whenever it edits a human page, and
   offers `/human-docs` to rewrite one this way. Its `cold-reader` agent reads a page as the

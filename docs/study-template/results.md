@@ -6,7 +6,8 @@ SPDX-License-Identifier: CC-BY-4.0
 # <Title>: detailed results
 
 The executive summary is in [`README.md`](README.md). This page holds the evidence:
-setup, method, every number, the caveats, and how to reproduce.
+setup, method, every number and the caveats. The steps to run it again are in
+[`how-to-reproduce.md`](how-to-reproduce.md); keep commands out of this page.
 
 ## Bottom line
 
@@ -46,8 +47,3 @@ setup, method, every number, the caveats, and how to reproduce.
 <!-- Everything that was NOT controlled: clocks, governor, other tenants, cache state. -->
 
 ## Open questions
-
-## Reproduce
-
-<!-- Tool repository and commit (or image tag), scenario files, compose files and
-     overrides (inline them if they are not in a repository), the analysis command. -->

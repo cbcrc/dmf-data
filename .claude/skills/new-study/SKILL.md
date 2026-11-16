@@ -26,7 +26,7 @@ Arguments: `$ARGUMENTS`, expected as `<section> <YYYY-MM>-<slug>`.
 
 ## 2. Scaffold
 
-1. Copy `docs/study-template/README.md` and `results.md` into
+1. Copy `docs/study-template/README.md`, `results.md` and `how-to-reproduce.md` into
    `studies/<section>/<YYYY-MM>-<slug>/`.
 2. Add the study to the root `README.md`, under its section, as
    `- [<Title>](studies/<section>/<YYYY-MM>-<slug>/) (<Month YYYY>): <one or two lines>`.
@@ -41,8 +41,10 @@ Arguments: `$ARGUMENTS`, expected as `<section> <YYYY-MM>-<slug>`.
 - Copy raw logs into the session scratchpad only. **Never into the repository.**
 - Before computing anything, read `.claude/rules/ai-notes.md`: appended logs, lane C,
   clock offsets, cache residency.
-- Fill `results.md` first (setup, method, raw-data tables, caveats, reproduce), then
-  write `README.md` from it.
+- Fill `results.md` first (setup, method, raw-data tables, caveats), then
+  `how-to-reproduce.md` (numbered steps with every command, the analysis, the figures to
+  compare with), then write `README.md` from `results.md`. Commands and steps go only in
+  `how-to-reproduce.md`.
 
 ## 4. Public-repository pass
 

@@ -6,7 +6,7 @@ SPDX-License-Identifier: CC-BY-4.0
 # MXL grain transit between two hosts over MXL fabrics: detailed results
 
 The executive summary is in [`README.md`](README.md). This page holds the evidence: setup, method, every
-session, the caveats, and how to reproduce. The two lab hosts are called **host A** (the sender) and **host B**
+session and the caveats. The steps to run it again are in [`how-to-reproduce.md`](how-to-reproduce.md). The two lab hosts are called **host A** (the sender) and **host B**
 (the receiver), the same machines as in the
 [cross-NUMA study](../../infra/2026-10-cross-numa-grain-transit/results.md).
 
@@ -212,72 +212,3 @@ host A.
 - **Tuning:** RoCE MTU 4096, the `performance` governor, and containers pinned to the NIC's NUMA node.
 - **Where the 0.6 ms goes:** wire time is 0.22 ms; the rest is the initiator noticing the commit, the transfer
   set-up, and the target's commit on host B. Not broken down.
-
-## Reproduce
-
-The raw event logs are kept on the lab hosts and are not published. Everything needed to produce new ones is
-public.
-
-**Bench.** [mxl-api-bench](https://github.com/cbcrc/mxl-api-bench), one instance per host.
-- Host A: a transit scenario, `10-transit-local-stamp` for the stamp-only reads used here (`08` or `11` to also
-  read the payload). Set `MXL_API_BENCH_LOG_FILE` to keep the log.
-- Host B: `09-transit-remote-reader`, started once the flow is visible in host B's domain (`mxl-info -d <domain>`).
-  Its lane B now sets `touch_payload: "lines"`; remove that to reproduce the stamp-only reads.
-
-**Transport.** The MXL fabrics demo from MXL branch `fabrics-demo-v1.1.0` (commit `c36ac00`), run with Docker
-Compose. The service definitions used, with addresses replaced by placeholders:
-
-```yaml
-x-rdma-settings: &rdma-settings
-  network_mode: "host"
-  cap_add: [IPC_LOCK]
-  ulimits:
-    memlock: -1
-  devices:
-    - /dev/infiniband:/dev/infiniband
-  shm_size: '2gb'
-
-services:
-  # Host B: the receiver. Start it first; it prints the target info the initiator needs.
-  fabrics-target-video:
-    <<: *rdma-settings
-    build: { dockerfile: examples/Dockerfile, context: .., target: mxl }
-    volumes:
-      - { type: bind, source: <host B MXL domain>, target: /mxl-domain }
-      - { type: bind, source: flow-configs, target: /home/mxl/flow-configs }
-    entrypoint: ["/usr/bin/mxl-fabrics-demo"]
-    command: >
-      -d /mxl-domain
-      -f flow-configs/flow-video-v210.json
-      --node <host B data-network address>
-      --service 5000
-      --provider verbs            # or: tcp
-      -t @/home/mxl/flow-configs/target.json
-
-  # Host A: the sender. TARGET_INFO is what the target printed; it changes on every target start.
-  fabrics-initiator-video:
-    <<: *rdma-settings
-    build: { dockerfile: examples/Dockerfile, context: .., target: mxl }
-    volumes:
-      - { type: bind, source: <host A MXL domain>, target: /mxl-domain }
-    entrypoint: ["/usr/bin/mxl-fabrics-demo"]
-    command: >
-      -i
-      -d /mxl-domain
-      -f a1b2c3d4-0008-4000-8000-000000000008
-      --node <host A data-network address>
-      --service 5000
-      --provider verbs            # or: tcp
-      --target-info "${TARGET_INFO:-}"
-```
-
-`flow-video-v210.json` on host B must describe the same flow (same id, 1080p29.97 v210) as the bench writes on
-host A.
-
-**Order.** Start the bench writer on host A, then the target on host B, then the initiator on host A with the
-target's info, then the remote reader on host B.
-
-**Analysis.** `mxl-transit-stats.py --lane B <host A log> <host B log>` from the bench repository gives the
-per-lane statistics. The logs append every session, so split them first: a new session starts where the event
-`seq` restarts at 1 or the log pauses for more than two minutes. Statistics here are over successful lane B
-reads with a valid stamp; percentiles are linearly interpolated.

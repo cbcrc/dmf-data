@@ -21,12 +21,14 @@ such a facility.
 
 ## How to read a study
 
-Each study is a folder with two pages:
+Each study is a folder with three pages:
 
 - **`README.md`, the executive summary.** The question, what fooled us on the way, the answer, and rules of
   thumb. A page and a half.
 - **`results.md`, the detailed results.** The setup and hardware, the method, every number in per-run tables,
-  the caveats, and how to reproduce it with public tools.
+  and the caveats.
+- **`how-to-reproduce.md`, the steps.** Numbered steps, with every command, to run the measurement again on your
+  own hardware with public tools, and the figures to compare with.
 
 The raw measurement logs are too large to publish; `results.md` holds the per-run statistics computed from them.
 The results come from our lab hardware, described in each `results.md`; check how close yours is before reusing a

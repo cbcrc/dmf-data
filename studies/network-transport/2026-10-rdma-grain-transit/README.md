@@ -6,7 +6,8 @@ SPDX-License-Identifier: CC-BY-4.0
 # Leaving the host: moving MXL video between servers over RDMA
 
 **Measured:** September and October 2026 · **Hardware:** two servers with Intel Xeon Silver 4510 CPUs and
-200 Gb/s NVIDIA ConnectX-7 network cards · **Details:** [`results.md`](results.md)
+200 Gb/s NVIDIA ConnectX-7 network cards · **Details:** [`results.md`](results.md) ·
+**Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md)
 
 ## The question
 
@@ -114,4 +115,5 @@ The ranges are over the test sessions.
 - **The network between the two servers**, and whether its switches were configured for RoCE, was not recorded.
   RoCE usually needs switch settings that prevent packet loss; a facility network must be checked for them.
 
-The per-session tables, the setup, the clock analysis and how to reproduce are in [`results.md`](results.md).
+The per-session tables, the setup and the clock analysis are in [`results.md`](results.md). The steps to run it
+again between two servers of your own are in [`how-to-reproduce.md`](how-to-reproduce.md).

@@ -21,10 +21,10 @@ if git grep --untracked -nE '\.(c|cc|cpp|h|hpp|rs|py|go|js|ts):[0-9]' -- '*READM
   err "README.md files and docs/ are for people. Move source citations out (docs/writing-guide.md)."
 fi
 
-# 2. Every study has its two files.
+# 2. Every study has its three files.
 studies=$(files 'studies/*/*/*' | awk -F/ 'NF>=4 {print $1"/"$2"/"$3}' | sort -u)
 for s in ${studies}; do
-  for f in README.md results.md; do
+  for f in README.md results.md how-to-reproduce.md; do
     [ -f "${s}/${f}" ] || err "${s} has no ${f} (AGENTS.md, \"Anatomy of a study\")."
   done
 done

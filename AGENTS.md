@@ -38,8 +38,9 @@ and each study names the exact tool commit and scenario that produced its number
 
 ```
 studies/<section>/<YYYY-MM>-<slug>/
-  README.md    the executive summary, for people (docs/writing-guide.md)
-  results.md   the detailed results: setup, method, every number, caveats, how to reproduce
+  README.md            the executive summary, for people (docs/writing-guide.md)
+  results.md           the detailed results: setup, method, every number, caveats
+  how-to-reproduce.md  numbered steps to run the measurement again
 ```
 
 - `<YYYY-MM>` is when the measurements were taken, not when they were written up.
@@ -53,8 +54,23 @@ studies/<section>/<YYYY-MM>-<slug>/
   3. **Raw-data tables**: the per-run statistics the conclusions were drawn from
      (min / p50 / p90 / p99 / max, call counts, failures), not only the summary.
   4. **Caveats and open questions.**
-  5. **Reproduce**: the tool repository and commit (or image tag), the scenario files,
-     the compose files and overrides, and the analysis command.
+
+  It says what was run and what was found, not how to run it: **no reproduction steps
+  or commands.** Those go in `how-to-reproduce.md`.
+- **`how-to-reproduce.md`** lets someone else run the measurement again, on their own
+  hardware, without asking us. It is a numbered list of steps, each with the commands to
+  type. It must contain:
+  1. **What you need**: hardware, software, access, and the tool repository with the
+     commit or image tag the study used.
+  2. **The steps**, in order, from preparing the host to collecting the logs: scenario
+     names, compose files and overrides (inlined if they live in no repository), every
+     command, and what to check before going on.
+  3. **The analysis**: the command that turns the logs into the study's figures.
+  4. **What to expect**: the study's figures to compare with, and which of them should
+     hold on other hardware.
+
+  Addresses are placeholders (`<host B RDMA address>`); lab paths and host names never
+  appear.
 - Every study is listed in the root [`README.md`](README.md) under its section, with one
   or two lines saying what it found. CI fails a study that is not listed.
 - A number in `README.md` must appear, or be derivable, in `results.md`. When the two

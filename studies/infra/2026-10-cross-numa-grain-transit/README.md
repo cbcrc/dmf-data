@@ -6,7 +6,8 @@ SPDX-License-Identifier: CC-BY-4.0
 # The journey across the socket: the cross-NUMA cost of MXL
 
 **Measured:** October 2026 · **Hardware:** two identical servers, each with two Intel Xeon Silver 4510
-(Sapphire Rapids) CPUs · **Details:** [`results.md`](results.md)
+(Sapphire Rapids) CPUs · **Details:** [`results.md`](results.md) ·
+**Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md)
 
 ## The question
 
@@ -129,4 +130,5 @@ options, or with the Kubernetes CPU and topology managers.
 - **Higher frame rates** (50 or 59.94 fps) and **8K** were not measured. At 59.94 fps a frame lasts 16.7 ms, so
   the same 1 ms would be 6 % of it.
 
-The full report, with every table, the counters, and how to reproduce it, is in [`results.md`](results.md).
+The full report, with every table and the counters, is in [`results.md`](results.md). The steps to run the
+decisive test again on your own server are in [`how-to-reproduce.md`](how-to-reproduce.md).

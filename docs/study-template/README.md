@@ -6,7 +6,8 @@ SPDX-License-Identifier: CC-BY-4.0
 # <Title: the question, in plain words>
 
 **Measured:** <month year> · **Hardware:** <one line, e.g. two-socket Intel server, 200 GbE NIC> ·
-**Details:** [`results.md`](results.md)
+**Details:** [`results.md`](results.md) ·
+**Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md)
 
 <!-- The executive summary. Read docs/writing-guide.md before writing it. Keep it to a page
      and a half. Every number here must be in results.md. -->

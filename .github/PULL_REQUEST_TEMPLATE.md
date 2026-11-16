@@ -17,12 +17,13 @@ SPDX-License-Identifier: CC-BY-4.0
 ## Where the numbers come from
 
 <!-- New study or correction: the tool repository and commit, the scenarios, and the
-     analysis command. Same as the study's "Reproduce" section is fine. -->
+     analysis command. A link to the study's how-to-reproduce.md is fine. -->
 
 ## Checklist
 
 - [ ] Every number in the study `README.md` is in its `results.md`.
-- [ ] `results.md` has setup, method, raw-data tables, caveats and a "Reproduce" section.
+- [ ] `results.md` has setup, method, raw-data tables and caveats, and no reproduction steps.
+- [ ] `how-to-reproduce.md` lists numbered steps with every command, the analysis, and the figures to compare with.
 - [ ] The caveats say what was **not** controlled (clocks, governor, other tenants, cache).
 - [ ] The study is listed in the root `README.md` with a one- or two-line summary.
 - [ ] I ran the `cold-reader` agent (or had a newcomer read it) on the study `README.md`.
