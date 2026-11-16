@@ -19,23 +19,16 @@ Expect about 30 minutes, most of it waiting for runs.
 - `jq`, `curl`, `python3`, and `cpupower` (package `linux-tools-common` on Ubuntu). `perf` only for the optional
   counters.
 - Root access, for the governor and the counters.
-- [mxl-api-bench](https://github.com/cbcrc/mxl-api-bench), with scenarios 12 to 17 (merged from
-  [PR #2](https://github.com/cbcrc/mxl-api-bench/pull/2)).
+- [mxl-api-bench](https://github.com/cbcrc/mxl-api-bench), with scenario
+  **`12-transit-local-copy-2160p-lag3`** (merged from [PR #2](https://github.com/cbcrc/mxl-api-bench/pull/2)).
+  It is the scenario that isolated the cross-NUMA cost: 4K grains, with the reader copying the grain three behind
+  the newest one, so the copy comes from main memory. **During the study it was called
+  `17-transit-local-copy-2160p-lag3`**, and [`results.md`](results.md) keeps that name. Scenarios 12 to 16 of the
+  report were intermediate steps and are not published.
 
 **Tool version.** The study ran the image `ghcr.io/cbcrc/abi-tester:latest` = `hands-on-1cdb007`, the tool's
 earlier name. Any later `ghcr.io/cbcrc/mxl-api-bench` image runs the same scenarios. The log variable was then
 `ABI_TESTER_LOG_FILE`; it is now `MXL_API_BENCH_LOG_FILE`.
-
-**Scenarios**, all in the tool's `scenarios/` directory:
-
-| Scenario | Used in | What it does |
-|---|---|---|
-| `10-transit-local-stamp`, `08-transit-local-lines`, `11-transit-local-copy` | §1-3 | 1080p29.97 v210 writer (lane A) plus a reader at head+1 (lane B) that reads only the stamp, every line, or copies the grain |
-| `13-transit-local-copy-lag3` | §4 | 11 with the reader at head-3 |
-| `14-transit-local-lines-2160p`, `15-transit-local-copy-2160p` | §4-6 | 08 and 11 at 2160p (22 MB grains) |
-| `16-transit-local-lines-2160p-lag3`, **`17-transit-local-copy-2160p-lag3`** | §4-10 | 2160p at head-3, so the grain is read from DRAM. **17 is the one that isolates the cross-NUMA cost**, and the one used below |
-
-12 to 17 are generated from 08 and 11 by `scenarios/make-lag.sh` and `scenarios/make-2160p.sh`.
 
 ## 1. Check the topology
 
@@ -122,13 +115,13 @@ done
 
 Each container must show its own CPU list and `Mems_allowed_list` 0, 0 and 1 respectively.
 
-## 6. Build the run bodies from scenario 17
+## 6. Build the run bodies from scenario 12
 
 Each run is 90 seconds. The writer container runs only lane A (writing), and the reader runs only lane B (reading
 three grains behind the newest):
 
 ```sh
-S=17-transit-local-copy-2160p-lag3
+S=12-transit-local-copy-2160p-lag3
 jq '(.lanes.A[] | select(.id=="a7").args.times) = 2699
   | (.lanes.B[] | select(.id=="b5").args.times) = 2549
   | (.lanes.C[] | select(.id=="c3").args.times) = 89' scenarios/$S.json > /tmp/short.json
@@ -136,7 +129,7 @@ jq 'del(.lanes.B, .lanes.C) | .name += "-writer-only"' /tmp/short.json > /tmp/wr
 jq 'del(.lanes.A, .lanes.C) | .name += "-reader-only"' /tmp/short.json > /tmp/reader.json
 ```
 
-These are, byte for byte apart from the log variable's name in the description, the bodies used in the study.
+These are the bodies used in the study, byte for byte apart from the scenario's name and description.
 
 ## 7. Run it twice: local, then cross
 
@@ -174,9 +167,6 @@ docker exec $R sh -c 'grep mxl-domain /proc/1/numa_maps' > runs/$RLOG/numa_maps.
 ```
 
 `numa_maps.txt` should show the grain pages on node 0 only (`N0=`).
-
-To also reproduce the "newest frame" row of the results, repeat steps 6 and 7 with
-`S=15-transit-local-copy-2160p`.
 
 ## 8. Compute the figures
 
@@ -241,8 +231,8 @@ All start from the setup above; [`results.md`](results.md) describes each one.
 
 | Section | What changes |
 |---|---|
-| §1-3, the governor | Scenarios `10`, `08`, `11` at 1080p, trimmed to 5 min (`a7.times = 8999`, `b5.times = 8849`). The writer container also runs its own reader lanes. Run once under `schedutil`, once under `performance` |
-| §4, 2160p | Scenarios `14`-`17`, with the writer's own reader lane and both reader containers running at once |
+| §1-3, the governor | Scenarios `10`, `08`, `11` (published) at 1080p, trimmed to 5 min (`a7.times = 8999`, `b5.times = 8849`). The writer container also runs its own reader lanes. Run once under `schedutil`, once under `performance` |
+| §4, 2160p | `08` and `11` changed to 2160p and/or head-3 as described in §4 (the "newest frame" runs are `12` without the head-3 change to lane B), with the writer's own reader lane and both reader containers running at once |
 | §8, N readers on one flow | Lane B cloned N times (1, 2, 4, 6) in the reader body, each clone with its own handle names |
 | §9-10, several flows and memory stress | Lane A cloned F times (1, 2, 4), each with its own flow id; `stress-ng` on 4 other node-0 cores with `--cpuset-mems 0` (`stress-ng --vm 8 --vm-bytes 4G --vm-keep` in §9, `stress-ng --stream 8 --timeout 900s` in §10) |
 

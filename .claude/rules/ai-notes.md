@@ -22,7 +22,8 @@ the next session from repeating it. Dense on purpose.
   `ring bytes` vs `L3 per socket` before trusting a memory-path number.
 - **Freshly committed grain is warm.** Reading at head+1 right after commit pulls from the
   writer's L3, not DRAM. Lag the reader (head-3 at 2160p = 66 MB of newer writes > 30 MB
-  L3). Scenarios `16`/`17-*-2160p-lag3` in mxl-api-bench do this.
+  L3). Scenario `12-transit-local-copy-2160p-lag3` in mxl-api-bench does this (it was `17-…` during the
+  cross-NUMA study).
 - **Readers feed each other.** Several readers on the remote socket: the first pulls from
   DRAM over UPI, the rest snoop its cache. Cross-socket penalty shrinks to ~+4 %. Isolate
   one remote reader per run to measure a true remote read.
