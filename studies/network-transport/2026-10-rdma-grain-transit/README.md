@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC-BY-4.0
 **Measured:** September and October 2026 · **Hardware:** two servers with Intel Xeon Silver 4510 CPUs and
 200 Gb/s NVIDIA ConnectX-7 network cards · **Details:** [`results.md`](results.md) ·
 **Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md) · **Presented:** WABE 2026
-([slides](slides/wabe-2026-from-memory-to-fabric.html))
+([slides](slides/wabe-2026-from-memory-to-fabric.pdf))
 
 ## The question
 
@@ -119,9 +119,12 @@ The ranges are over the test sessions.
 ## Presented at WABE 2026
 
 We showed this measurement at WABE 2026 in Vancouver, on 6 October 2026, in the talk *From memory to fabric:
-MXL at WABE 2026*. The slides are one self-contained file,
-[`slides/wabe-2026-from-memory-to-fabric.html`](slides/wabe-2026-from-memory-to-fabric.html). GitHub shows it as
-source code: download it and open it in a browser. It needs no network connection.
+MXL at WABE 2026*. The slides come in two forms:
+
+- [**PDF**](slides/wabe-2026-from-memory-to-fabric.pdf), which GitHub displays directly.
+- [**HTML**](slides/wabe-2026-from-memory-to-fabric.html), the deck as presented, where you can click the
+  architecture diagram to zoom into each part. GitHub shows it as source code: download it and open it in a
+  browser. It needs no network connection.
 
 The slides give the figures of one test day, 5 October: a typical 0.07 ms on the same server, 0.78 ms over Verbs
 and 3.7 ms over TCP. They fall within the ranges above. One statement on the slides goes further than this study

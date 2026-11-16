@@ -40,10 +40,14 @@ by the statements in this document.
 
 ## Presentation slides
 
-Slide decks in a study's `slides/` folder are published as presented, and carry their own licence notice at the
-top of the file. They are the exception to the two sections above:
+Slide decks in a study's `slides/` folder are published as presented. An HTML deck carries its licence notice
+at the top of the file; its PDF export cannot, and is covered by this section. They are the exception to the two
+sections above:
 
-- [`studies/network-transport/2026-10-rdma-grain-transit/slides/wabe-2026-from-memory-to-fabric.html`](../studies/network-transport/2026-10-rdma-grain-transit/slides/wabe-2026-from-memory-to-fabric.html)
+- `studies/network-transport/2026-10-rdma-grain-transit/slides/`:
+  [`wabe-2026-from-memory-to-fabric.html`](../studies/network-transport/2026-10-rdma-grain-transit/slides/wabe-2026-from-memory-to-fabric.html)
+  and its PDF export,
+  [`wabe-2026-from-memory-to-fabric.pdf`](../studies/network-transport/2026-10-rdma-grain-transit/slides/wabe-2026-from-memory-to-fabric.pdf)
   - Presentation content © 2026 CBC/Radio-Canada, licensed under
     [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/): you may redistribute it unmodified, with
     credit.

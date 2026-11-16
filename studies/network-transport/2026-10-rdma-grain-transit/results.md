@@ -140,8 +140,9 @@ One 1080p29.97 v210 flow is 5 529 600 B x 8 x 29.97 = **1.33 Gb/s**, under 1 % o
 
 ### Figures in the WABE 2026 slides
 
-The [slides](slides/wabe-2026-from-memory-to-fabric.html) of the talk given on 2026-10-06 show the 2026-10-05
-sessions, the last test day before it:
+The slides of the talk given on 2026-10-06 ([PDF](slides/wabe-2026-from-memory-to-fabric.pdf),
+[HTML](slides/wabe-2026-from-memory-to-fabric.html); same slides, the HTML adds clickable zoom-ins on the
+architecture slide) show the 2026-10-05 sessions, the last test day before it:
 
 | Slide figure | Session in the [raw-data tables](#raw-data-tables) | Value in the tables |
 |---|---|---|

@@ -73,8 +73,9 @@ studies/<section>/<YYYY-MM>-<slug>/
   Addresses are placeholders (`<host B RDMA address>`); lab paths and host names never
   appear.
 - **`slides/`** (optional) holds the deck of a talk that presented the study, unchanged:
-  one self-contained file (fonts and images embedded, nothing loaded from the network),
-  under the 5 MB limit, and bound by the public-repository rules like any other file.
+  self-contained files (fonts and images embedded, nothing loaded from the network),
+  ideally a PDF, which GitHub displays, next to the original. Each file is under the
+  5 MB limit and bound by the public-repository rules like any other file.
   The study `README.md` links it; `results.md` says which sessions each figure on the
   slides comes from and lists every statement that differs from `results.md`, which wins.
   A deck under a licence other than CC BY 4.0 is listed in
