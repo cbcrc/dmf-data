@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 CBC/Radio-Canada
+# SPDX-License-Identifier: Apache-2.0
+
+name: docs-checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Human pages carry no source citations, every study has README.md + results.md and
+      # is listed in the root README, and nothing private or large is published.
+      - name: Docs checks
+        run: .github/scripts/docs-checks.sh

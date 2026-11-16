@@ -1,2 +1,11 @@
-# Claude local settings
-.claude/
+# SPDX-FileCopyrightText: 2026 CBC/Radio-Canada
+# SPDX-License-Identifier: Apache-2.0
+
+# Claude Code: personal settings only. Shared rules, skills and agents are tracked.
+.claude/settings.local.json
+
+# Raw measurement logs never go in this public repo (AGENTS.md, "Public repository").
+*.ndjson
+*.ndjson.*
+
+.DS_Store
