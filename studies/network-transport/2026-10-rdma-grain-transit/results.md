@@ -138,6 +138,31 @@ the read rate and the loss counts.
 
 One 1080p29.97 v210 flow is 5 529 600 B x 8 x 29.97 = **1.33 Gb/s**, under 1 % of the 200 Gb/s link.
 
+### Figures in the WABE 2026 slides
+
+The slides of the talk given on 2026-10-06 ([PDF](slides/wabe-2026-from-memory-to-fabric.pdf),
+[HTML](slides/wabe-2026-from-memory-to-fabric.html); same slides, the HTML adds clickable zoom-ins on the
+architecture slide) show the 2026-10-05 sessions, the last test day before it:
+
+| Slide figure | Session in the [raw-data tables](#raw-data-tables) | Value in the tables |
+|---|---|---|
+| Local, same host: median 0.07 ms, p99 0.09 ms | Host A local reader, writer session 2026-10-05 16:34 | p50 0.069, p99 0.086 ms |
+| Across hosts, TCP: median 3.7 ms, p99 5.3 ms | 2026-10-05 16:24, TCP | p50 3.674, p99 5.299 ms |
+| Across hosts, Verbs: median 0.78 ms, p99 0.82 ms | 2026-10-05 16:35, Verbs | p50 0.778, p99 0.819 ms |
+| Verbs "reduces transit latency by 4.7×" | The two sessions above | 3.674 / 0.778 = 4.72 |
+
+Where the slides and this page differ:
+
+- **Clocks.** The slides say both hosts were synchronised by NTP "to a Meinberg grandmaster within tens of
+  microseconds". The offset during the runs was not recorded; the 0.03 ms figure is the November reading (see
+  [Clock offset](#clock-offset)). This page's bound applies.
+- **Testbed.** The slides name the server model (Dell R760xs) and memory (256 GB), which [Setup](#setup) does
+  not record.
+- **Tool.** The slides point to the bench under its former name and location (ABI-tester, in
+  `cbcrc/mxl-hands-on` under `test-tools`). It is now [mxl-api-bench](https://github.com/cbcrc/mxl-api-bench).
+
+The slides are published unchanged, as presented, under CC BY-ND 4.0 ([`LICENSES/LICENSE.md`](../../../LICENSES/LICENSE.md)).
+
 ## Raw-data tables
 
 ### Remote reader (host B), per session

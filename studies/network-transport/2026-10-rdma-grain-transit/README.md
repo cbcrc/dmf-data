@@ -7,7 +7,8 @@ SPDX-License-Identifier: CC-BY-4.0
 
 **Measured:** September and October 2026 · **Hardware:** two servers with Intel Xeon Silver 4510 CPUs and
 200 Gb/s NVIDIA ConnectX-7 network cards · **Details:** [`results.md`](results.md) ·
-**Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md)
+**Reproduce:** [`how-to-reproduce.md`](how-to-reproduce.md) · **Presented:** WABE 2026
+([slides](slides/wabe-2026-from-memory-to-fabric.pdf))
 
 ## The question
 
@@ -114,6 +115,22 @@ The ranges are over the test sessions.
   setting up the transfer, and the receiver making it available to readers on host B; we did not time each step.
 - **The network between the two servers**, and whether its switches were configured for RoCE, was not recorded.
   RoCE usually needs switch settings that prevent packet loss; a facility network must be checked for them.
+
+## Presented at WABE 2026
+
+We showed this measurement at WABE 2026 in Vancouver, on 6 October 2026, in the talk *From memory to fabric:
+MXL at WABE 2026*. The slides come in two forms:
+
+- [**PDF**](slides/wabe-2026-from-memory-to-fabric.pdf), which GitHub displays directly.
+- [**HTML**](slides/wabe-2026-from-memory-to-fabric.html), the deck as presented, where you can click the
+  architecture diagram to zoom into each part. GitHub shows it as source code: download it and open it in a
+  browser. It needs no network connection.
+
+The slides give the figures of one test day, 5 October: a typical 0.07 ms on the same server, 0.78 ms over Verbs
+and 3.7 ms over TCP. They fall within the ranges above. One statement on the slides goes further than this study
+can: that the two servers' clocks were within tens of microseconds of each other. That was true when we checked
+in November, but nobody measured it during the runs (see "What could fool us" above). Where the slides and this
+page differ, this page is right. The slides are published as they were presented.
 
 The per-session tables, the setup and the clock analysis are in [`results.md`](results.md). The steps to run it
 again between two servers of your own are in [`how-to-reproduce.md`](how-to-reproduce.md).

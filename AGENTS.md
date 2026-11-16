@@ -41,6 +41,7 @@ studies/<section>/<YYYY-MM>-<slug>/
   README.md            the executive summary, for people (docs/writing-guide.md)
   results.md           the detailed results: setup, method, every number, caveats
   how-to-reproduce.md  numbered steps to run the measurement again
+  slides/              optional: the deck of a talk that presented the study, as given
 ```
 
 - `<YYYY-MM>` is when the measurements were taken, not when they were written up.
@@ -71,6 +72,14 @@ studies/<section>/<YYYY-MM>-<slug>/
 
   Addresses are placeholders (`<host B RDMA address>`); lab paths and host names never
   appear.
+- **`slides/`** (optional) holds the deck of a talk that presented the study, unchanged:
+  self-contained files (fonts and images embedded, nothing loaded from the network),
+  ideally a PDF, which GitHub displays, next to the original. Each file is under the
+  5 MB limit and bound by the public-repository rules like any other file.
+  The study `README.md` links it; `results.md` says which sessions each figure on the
+  slides comes from and lists every statement that differs from `results.md`, which wins.
+  A deck under a licence other than CC BY 4.0 is listed in
+  [`LICENSES/LICENSE.md`](LICENSES/LICENSE.md).
 - Every study is listed in the root [`README.md`](README.md) under its section, with one
   or two lines saying what it found. CI fails a study that is not listed.
 - A number in `README.md` must appear, or be derivable, in `results.md`. When the two

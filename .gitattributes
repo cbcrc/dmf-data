@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 CBC/Radio-Canada
+# SPDX-License-Identifier: Apache-2.0
+#
+# Slide decks are single self-contained HTML files (fonts and images embedded as base64).
+# Do not diff them, and keep them out of the repository's language statistics.
+studies/**/slides/*.html -diff linguist-documentation
